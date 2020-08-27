@@ -3,7 +3,6 @@ package com.demosample.videosong
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.os.Environment
 import android.util.Base64
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -50,7 +49,7 @@ class MyWorker(context: Context, params: WorkerParameters) :
      * Save in a directory
      */
     private fun createDirectoryAndSaveFile(imageToSave: Bitmap, fileName: String) {
-        val direct = File(Environment.DIRECTORY_PICTURES, fileName)
+        val direct = File(applicationContext.externalMediaDirs.first(), "Pictures")
         if (!direct.exists()) {
             val wallpaperDirectory = File(direct, fileName)
             wallpaperDirectory.mkdirs()

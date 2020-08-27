@@ -203,44 +203,57 @@ class TrimActivity : AppCompatActivity() {
 
 
     private fun startRetriverWork() {
-        val tRetriever = MediaMetadataRetriever()
 
-
-        tRetriever.setDataSource(baseContext, Uri.parse(uri))
-        mediaMetadataRetriever = tRetriever
         uiScope.launch {
-            processBitmap(mediaMetadataRetriever!!)
+            processBitmap()
         }
 
     }
 
-    private suspend fun processBitmap(mediaMetadataRetriever: MediaMetadataRetriever) {
+    private suspend fun processBitmap() {
         withContext(Dispatchers.Default) {
+            val tRetriever = MediaMetadataRetriever()
+
+
+            tRetriever.setDataSource(baseContext, Uri.parse(uri))
+
             val bitmapper = ArrayList<Bitmap>()
-            val DURATION = mediaMetadataRetriever.extractMetadata(
+            var abc: String
+            abc = tRetriever.extractMetadata(
                     MediaMetadataRetriever.METADATA_KEY_DURATION)
 
-            var maxDur = (1000 * DURATION.toDouble()).toLong()
+            var maxDur = (1000 * abc.toDouble()).toLong()
             maxDur = ((ender * maxDur) / 100)
 
             var i: Long = (starter * maxDur) / 100
 
             while (i < maxDur) {
                 if (filter != 0)
-                    bitmapper.add(filterType.processFilter(getResizedBitmap(mediaMetadataRetriever.getFrameAtTime(i), 50)))
-                else
-                    bitmapper.add(getResizedBitmap(mediaMetadataRetriever.getFrameAtTime(i), 50))
+                    bitmapper.add(filterType.processFilter(getResizedBitmap(tRetriever.getFrameAtTime(i), 50)))
+                else {
+                    try {
+                        bitmapper.add(getResizedBitmap(tRetriever.getFrameAtTime(i), 50))
+                    } catch (e: IllegalStateException) {
+                        tRetriever.release()
+                        changeInFrames()
+
+                    }
+
+                }
+
 
 
                 i = i + maxDur / 10
             }
+            tRetriever.release()
 
             withContext(Dispatchers.Main) {
                 bitmapper1 = bitmapper
                 allAdapter = RecyclerAdapter(bitmapper, applicationContext)
                 recyclerView.adapter = allAdapter
-                mediaMetadataRetriever.release()
+
             }
+
         }
 
 
