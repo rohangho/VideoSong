@@ -2,6 +2,7 @@ package com.demosample.videosong
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.AssetFileDescriptor
 import android.graphics.SurfaceTexture
@@ -29,6 +30,7 @@ class CameraActivity : AppCompatActivity() {
     private lateinit var name: String
     private val REQUEST_CAMERA_PERMISSION_RESULT = 0
     private var cameraDsiplayer: TextureView? = null
+
 
     private var i: Int = 1
     private val mSurfaceTextureListener: TextureView.SurfaceTextureListener = object : TextureView.SurfaceTextureListener {
@@ -93,6 +95,7 @@ class CameraActivity : AppCompatActivity() {
     private lateinit var clickme: AppCompatButton
 
     private var mIsRecording = false
+    val mediaPlayer = MediaPlayer()
     var a = 0
     var k = 0
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -104,7 +107,7 @@ class CameraActivity : AppCompatActivity() {
         clickme = findViewById(R.id.click)
         clickme.setOnClickListener {
             if (k == 0) {
-                val mediaPlayer = MediaPlayer()
+
                 var afd: AssetFileDescriptor
                 try {
                     if (a == 1)
@@ -126,7 +129,11 @@ class CameraActivity : AppCompatActivity() {
                 clickme.text = "Done"
             } else {
                 k = 0
+                mediaPlayer.stop()
                 stopRecord()
+
+                startActivity(Intent(this, TrimActivity::class.java).putExtra("pathname", getOutputDirectory(this).toURI().toString()))
+
             }
 
 
