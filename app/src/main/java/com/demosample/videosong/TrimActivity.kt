@@ -62,6 +62,8 @@ class TrimActivity : AppCompatActivity() {
         setContentText("Download in progress")
         setSmallIcon(R.drawable.ic_launcher_foreground)
         priority = NotificationCompat.PRIORITY_MAX
+        
+
     }
 
     init {
@@ -74,6 +76,8 @@ class TrimActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_trim)
         uri = intent.getStringExtra("pathname")
+
+
 
         mNotifyManager = NotificationManagerCompat.from(this)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
@@ -119,11 +123,13 @@ class TrimActivity : AppCompatActivity() {
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
+                a = seekBar?.progress!!
+                changeInFrames()
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
+                a = seekBar?.progress!!
+                changeInFrames()
             }
         })
 
@@ -134,11 +140,13 @@ class TrimActivity : AppCompatActivity() {
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
+                b = seekBar?.progress!!
+                changeInFrames()
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
+                b = seekBar?.progress!!
+                changeInFrames()
             }
         })
 
@@ -184,18 +192,17 @@ class TrimActivity : AppCompatActivity() {
         notificationChannel.lightColor = Color.BLUE
         notificationChannel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
         mNotifyManager.createNotificationChannel(notificationChannel)
+
     }
 
     fun changeInFrames() {
+
         if (a > b) {
             starter = b
             ender = a
-        } else if (b > a) {
+        } else if (b >= a) {
             starter = a
             ender = b
-        } else {
-            starter = 0
-            ender = 100
         }
 
         startRetriverWork()
@@ -223,11 +230,10 @@ class TrimActivity : AppCompatActivity() {
                     MediaMetadataRetriever.METADATA_KEY_DURATION)
 
             var maxDur = (1000 * abc.toDouble()).toLong()
-            maxDur = ((ender * maxDur) / 100)
+            var j = ((ender * maxDur) / 100)
 
             var i: Long = (starter * maxDur) / 100
-
-            while (i < maxDur) {
+            while (i < j) {
                 if (filter != 0)
                     bitmapper.add(filterType.processFilter(getResizedBitmap(tRetriever.getFrameAtTime(i), 50)))
                 else {

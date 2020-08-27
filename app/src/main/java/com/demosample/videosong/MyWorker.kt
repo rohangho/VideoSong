@@ -51,7 +51,7 @@ class MyWorker(context: Context, params: WorkerParameters) :
     private fun createDirectoryAndSaveFile(imageToSave: Bitmap, fileName: String) {
         val direct = File(applicationContext.externalMediaDirs.first(), "Pictures")
         if (!direct.exists()) {
-            val wallpaperDirectory = File(direct, fileName)
+            val wallpaperDirectory = File(direct, "Pictures")
             wallpaperDirectory.mkdirs()
         }
         val file = File(direct, "$fileName.jpg")
