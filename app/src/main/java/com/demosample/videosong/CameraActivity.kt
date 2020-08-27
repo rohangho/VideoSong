@@ -290,7 +290,7 @@ class CameraActivity : AppCompatActivity() {
         mMediaRecorder!!.setAudioSource(MediaRecorder.AudioSource.MIC)
         mMediaRecorder!!.setVideoSource(MediaRecorder.VideoSource.SURFACE)
         mMediaRecorder!!.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-        mMediaRecorder!!.setOrientationHint(0)
+        mMediaRecorder!!.setOrientationHint(270)
         mMediaRecorder!!.setOutputFile(getOutputDirectory(this))
         mMediaRecorder!!.setVideoEncodingBitRate(cpHigh.videoBitRate)
         mMediaRecorder!!.setVideoFrameRate(cpHigh.videoFrameRate)

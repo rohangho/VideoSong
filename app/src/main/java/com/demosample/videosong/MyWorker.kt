@@ -9,6 +9,8 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import java.io.File
 import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MyWorker(context: Context, params: WorkerParameters) :
         CoroutineWorker(context, params) {
@@ -18,7 +20,10 @@ class MyWorker(context: Context, params: WorkerParameters) :
             val i = 0
             if (name != null) {
 
-                StringToBitMap(name)?.let { createDirectoryAndSaveFile(it, java.sql.Timestamp(System.currentTimeMillis()).toString()) }
+                StringToBitMap(name)?.let {
+                    createDirectoryAndSaveFile(it, SimpleDateFormat("yyyyMMdd_HHmmss",
+                            Locale.getDefault()).format(Date()))
+                }
 
             }
             Result.success()
@@ -45,12 +50,12 @@ class MyWorker(context: Context, params: WorkerParameters) :
      * Save in a directory
      */
     private fun createDirectoryAndSaveFile(imageToSave: Bitmap, fileName: String) {
-        val direct = File(Environment.getExternalStorageDirectory().toString() + "/EditedImage")
+        val direct = File(Environment.DIRECTORY_PICTURES, fileName)
         if (!direct.exists()) {
-            val wallpaperDirectory = File("/sdcard/EditedImage/")
+            val wallpaperDirectory = File(direct, fileName)
             wallpaperDirectory.mkdirs()
         }
-        val file = File("/sdcard/EditedImage/", fileName + ".jpg")
+        val file = File(direct, "$fileName.jpg")
         if (file.exists()) {
             file.delete()
         }
