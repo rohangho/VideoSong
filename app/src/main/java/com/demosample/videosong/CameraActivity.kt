@@ -3,8 +3,11 @@ package com.demosample.videosong
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.AssetFileDescriptor
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.*
+import android.media.CamcorderProfile
+import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Build
 import android.os.Bundle
@@ -15,6 +18,7 @@ import android.view.Surface
 import android.view.TextureView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatButton
 import androidx.core.content.ContextCompat
 import java.io.File
 import java.io.IOException
@@ -25,6 +29,7 @@ class CameraActivity : AppCompatActivity() {
     private lateinit var name: String
     private val REQUEST_CAMERA_PERMISSION_RESULT = 0
     private var cameraDsiplayer: TextureView? = null
+
     private var i: Int = 1
     private val mSurfaceTextureListener: TextureView.SurfaceTextureListener = object : TextureView.SurfaceTextureListener {
         override fun onSurfaceTextureAvailable(
@@ -85,24 +90,55 @@ class CameraActivity : AppCompatActivity() {
     private var mMediaRecorder: MediaRecorder? = null
     private var mRecordCaptureSession: CameraCaptureSession? = null
     private lateinit var mCaptureRequestBuilder: CaptureRequest.Builder
+    private lateinit var clickme: AppCompatButton
 
     private var mIsRecording = false
     var a = 0
+    var k = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_camera)
         a = intent.getIntExtra("song", 0)
         cameraDsiplayer = findViewById(R.id.view_finder)
         checkGivenPermission()
+        clickme = findViewById(R.id.click)
+        clickme.setOnClickListener {
+            if (k == 0) {
+                val mediaPlayer = MediaPlayer()
+                var afd: AssetFileDescriptor
+                try {
+                    if (a == 1)
+                        afd = applicationContext.assets.openFd("a.mp3")
+                    else
+                        afd = applicationContext.assets.openFd("b.mp3")
+                    mediaPlayer.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+                    mediaPlayer.prepare()
+                    mediaPlayer.start()
+                    Toast.makeText(this, "Playing" + "a",
+                            Toast.LENGTH_SHORT).show()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
 
+                startRecord()
+                mMediaRecorder?.start()
+                k++
+                clickme.text = "Done"
+            } else {
+                k = 0
+                stopRecord()
+            }
+
+
+        }
     }
 
 
     fun stopRecord() {
         mRecordCaptureSession?.close()
         mIsRecording = false
-        mMediaRecorder!!.stop()
-        mMediaRecorder!!.reset()
+        mMediaRecorder?.stop()
+        mMediaRecorder?.reset()
         Log.d("Successful", getOutputDirectory(this).toString())
     }
 
@@ -243,15 +279,14 @@ class CameraActivity : AppCompatActivity() {
 
     @Throws(IOException::class)
     private fun setupMediaRecorder() {
-
-        mMediaRecorder!!.setAudioSource(MediaRecorder.AudioSource.CAMCORDER)
+        val cpHigh: CamcorderProfile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH)
+        mMediaRecorder!!.setAudioSource(MediaRecorder.AudioSource.MIC)
         mMediaRecorder!!.setVideoSource(MediaRecorder.VideoSource.SURFACE)
         mMediaRecorder!!.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-        mMediaRecorder!!.setOrientationHint(270)
-        //  mMediaRecorder!!.setVideoSize(640,640)
+        mMediaRecorder!!.setOrientationHint(0)
         mMediaRecorder!!.setOutputFile(getOutputDirectory(this))
-        mMediaRecorder!!.setVideoEncodingBitRate(1000000)
-        mMediaRecorder!!.setVideoFrameRate(30)
+        mMediaRecorder!!.setVideoEncodingBitRate(cpHigh.videoBitRate)
+        mMediaRecorder!!.setVideoFrameRate(cpHigh.videoFrameRate)
         mMediaRecorder!!.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
         mMediaRecorder!!.setVideoEncoder(MediaRecorder.VideoEncoder.H264)
 
@@ -301,12 +336,28 @@ class CameraActivity : AppCompatActivity() {
 
     private fun checkGivenPermission() {
         if ((ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ===
+                        PackageManager.PERMISSION_GRANTED) && (ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.RECORD_AUDIO
+                ) ===
+                        PackageManager.PERMISSION_GRANTED) && (ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.READ_EXTERNAL_STORAGE
+                ) ===
+                        PackageManager.PERMISSION_GRANTED) && (ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) ===
                         PackageManager.PERMISSION_GRANTED)
         ) {
 
 
         } else {
-            if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
+            if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) &&
+                    shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO) &&
+                    shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE) &&
+                    shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            ) {
                 Toast.makeText(
                         this,
                         "Please Give All Permission", Toast.LENGTH_SHORT
@@ -315,11 +366,14 @@ class CameraActivity : AppCompatActivity() {
             requestPermissions(
                     arrayOf(
                             Manifest.permission.CAMERA,
-
-                            ),
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.RECORD_AUDIO,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    ),
                     1001
             )
         }
+
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -330,12 +384,9 @@ class CameraActivity : AppCompatActivity() {
                     "Permission Given", Toast.LENGTH_SHORT
             ).show()
 
-            openCamera()
 
         }
     }
 
-    private fun openCamera() {
-
-    }
 }
+

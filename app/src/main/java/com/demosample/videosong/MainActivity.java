@@ -31,18 +31,6 @@ public class MainActivity extends AppCompatActivity {
                 startCamera(2);
             }
         });
-//        MediaPlayer mediaPlayer = new MediaPlayer();
-//        AssetFileDescriptor afd;
-//        try {
-//            afd = getAssets().openFd("a.mp3");
-//            mediaPlayer.setDataSource(afd.getFileDescriptor());
-//            mediaPlayer.prepare();
-//            mediaPlayer.start();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        Toast.makeText(MainActivity.this, "Playing" + "a",
-//                Toast.LENGTH_SHORT).show();
     }
 
     private void startCamera(int a) {
