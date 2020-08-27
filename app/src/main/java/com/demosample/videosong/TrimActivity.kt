@@ -34,8 +34,6 @@ import java.util.*
 class TrimActivity : AppCompatActivity() {
 
     private var abc: VideoView? = null
-    private var selectedImageUri: Uri? = null
-    private var mediaMetadataRetriever: MediaMetadataRetriever? = null
     private lateinit var recyclerView: RecyclerView
     private var seek1: SeekBar? = null
     private var downLoadButton: Button? = null
@@ -62,7 +60,7 @@ class TrimActivity : AppCompatActivity() {
         setContentText("Download in progress")
         setSmallIcon(R.drawable.ic_launcher_foreground)
         priority = NotificationCompat.PRIORITY_MAX
-        
+
 
     }
 
